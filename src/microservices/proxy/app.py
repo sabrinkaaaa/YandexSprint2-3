@@ -33,3 +33,20 @@ async def proxy_movies(request: Request):
     except httpx.RequestError as e:
         logging.error(f"Request to {target} failed: {e}")
         return Response(content="Upstream error", status_code=502)
+
+@app.get("/health")
+def health_check():
+    return {"status": True}
+
+@app.get("/api/users")
+async def proxy_users():
+    async with httpx.AsyncClient() as client:
+        response = await client.get(f"{MONOLITH_URL}/api/users")
+        return Response(content=response.content, status_code=response.status_code, media_type="application/json")
+
+
+@app.get("/api/events/health")
+def health_check():
+    return {"status": True}
+
+
