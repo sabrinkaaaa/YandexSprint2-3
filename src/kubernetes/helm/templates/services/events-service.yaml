@@ -1,4 +1,3 @@
-{{- if .Values.eventsService.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,8 +23,21 @@ spec:
         app: events-service
     spec:
       containers:
-      - name: events-service
-       .... тут
+        - name: events-service
+          image: {{ .Values.eventsService.image.repository }}:{{ .Values.eventsService.image.tag }}
+          imagePullPolicy: {{ .Values.eventsService.image.pullPolicy }}
+          ports:
+            - containerPort: 8082
+          env:
+            - name: KAFKA_BROKER
+              value: "{{ .Values.global.kafkaBroker }}"
+            - name: PORT
+              value: "8082"
+          resources:
+            {{- toYaml .Values.eventsService.resources | nindent 12 }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets.name }}
+
 ---
 apiVersion: v1
 kind: Service
@@ -37,5 +49,10 @@ metadata:
     app.kubernetes.io/name: {{ include "cinemaabyss.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
- ........ и тут
-{{- end }}
+  selector:
+    app: events-service
+  ports:
+    - protocol: TCP
+      port: {{ .Values.eventsService.service.port }}
+      targetPort: {{ .Values.eventsService.service.targetPort }}
+  type: {{ .Values.eventsService.service.type }}

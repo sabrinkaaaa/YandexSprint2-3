@@ -5,6 +5,7 @@ global:
 
 # Image pull secrets
 imagePullSecrets:
+  name: dockerconfigjson
   dockerconfigjson: ewoJImF1dGhzIjogewoJCSJnaGNyLmlvIjogewoJCQkiYXV0aCI6
 # Database configuration
 database:

@@ -1,4 +1,3 @@
-{{- if .Values.proxyService.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,8 +23,34 @@ spec:
         app: proxy-service
     spec:
       containers:
-      - name: proxy-service
-        ..... тут
+        - name: proxy-service
+          image: "{{ .Values.proxyService.image.repository }}:{{ .Values.proxyService.image.tag }}"
+          imagePullPolicy: {{ .Values.proxyService.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.proxyService.service.targetPort }}
+          envFrom:
+            - configMapRef:
+                name: cinemaabyss-config
+          env:
+            - name: PORT
+              value: "{{ .Values.proxyService.service.targetPort }}"
+            - name: MONOLITH_URL
+              value: "{{ .Values.config.monolithUrl | default "http://monolith:8080" }}"
+            - name: MOVIES_SERVICE_URL
+              value: "{{ .Values.config.moviesServiceUrl | default "http://movies-service:8081" }}"
+            - name: EVENTS_SERVICE_URL
+              value: "{{ .Values.config.eventsServiceUrl | default "http://events-service:8082" }}"
+            - name: GRADUAL_MIGRATION
+              value: "{{ .Values.config.gradualMigration | default "true" }}"
+            - name: MOVIES_MIGRATION_PERCENT
+              value: "{{ .Values.config.moviesMigrationPercent | default "100" }}"
+          resources:
+{{ toYaml .Values.proxyService.resources | indent 12 }}
+      {{- if .Values.imagePullSecrets.name }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets.name }}
+      {{- end }}
+
 ---
 apiVersion: v1
 kind: Service
@@ -38,5 +63,9 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   selector:
-    ... и тут
-{{- end }}
+    app: proxy-service
+  ports:
+    - protocol: TCP
+      port: {{ .Values.proxyService.service.port }}
+      targetPort: {{ .Values.proxyService.service.targetPort }}
+  type: {{ .Values.proxyService.service.type }}
