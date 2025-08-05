@@ -59,6 +59,11 @@
 Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
 Приложите скриншот тестов и скриншот состояния топиков Kafka из UI http://localhost:8090 
 
+<img width="818" height="559" alt="image" src="https://github.com/user-attachments/assets/b00b9818-07c2-4715-85df-2398c72046f9" />
+
+<img width="2552" height="553" alt="image" src="https://github.com/user-attachments/assets/48633eae-b1d7-4016-839c-7a6abd1a1b1e" />
+
+
 # Задание 3
 
 Команда начала переезд в Kubernetes для лучшего масштабирования и повышения надежности. 
